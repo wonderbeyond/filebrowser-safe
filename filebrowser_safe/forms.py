@@ -9,6 +9,7 @@ import re
 # django imports
 from django import forms
 from django.utils.translation import ugettext as _
+from django.core.files.storage import default_storage
 
 # filebrowser imports
 from filebrowser_safe.settings import FOLDER_REGEX
@@ -69,8 +70,6 @@ class RenameForm(forms.Form):
                 not alnum_name_re.search(self.path)):
                 raise forms.ValidationError(_(u'Only letters, numbers, underscores, spaces and hyphens are allowed.'))
             #  folder/file must not already exist.
-            if os.path.isdir(os.path.join(self.path, self.cleaned_data['name'])):
-                raise forms.ValidationError(_(u'The Folder already exists.'))
-            elif os.path.isfile(os.path.join(self.path, self.cleaned_data['name'] + self.file_extension)):
+            if default_storage.exists(self.cleaned_data['name']):
                 raise forms.ValidationError(_(u'The File already exists.'))
         return self.cleaned_data['name']
